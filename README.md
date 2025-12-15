@@ -150,9 +150,9 @@ Reviewer Statistics (12 Active PRs)
 
 Reviewer          Required  Approved  Waiting for Author  Rejected  Unreviewed
 ----------------  --------  --------  ------------------  --------  ----------
-Josh Bonnell             5         3                   1         0           1
-Victoria Day             4         4                   0         0           0
-Nick Fritsche            3         1                   0         0           2
+Mike                     5         3                   1         0           1
+Anna                     4         4                   0         0           0
+Natalie                  3         1                   0         0           2
 
 ✨ Flawless: Victoria Day has reviewed every single PR assigned. Respect.
 ```
