@@ -154,7 +154,7 @@ Mike                     5         3                   1         0           1
 Anna                     4         4                   0         0           0
 Natalie                  3         1                   0         0           2
 
-✨ Flawless: Victoria Day has reviewed every single PR assigned. Respect.
+✨ Flawless: Anna has reviewed every single PR assigned. Respect.
 ```
 
 ### Badges
