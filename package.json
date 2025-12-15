@@ -1,0 +1,45 @@
+{
+  "name": "azure-devops-mcp",
+  "version": "1.0.0",
+  "description": "Azure DevOps MCP server and CLI for PR management",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/joshbonnell/azure-devops-mcp.git"
+  },
+  "keywords": [
+    "azure-devops",
+    "mcp",
+    "model-context-protocol",
+    "cli",
+    "pull-request",
+    "code-review"
+  ],
+  "bin": {
+    "azdo": "dist/cli.js"
+  },
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js",
+    "install-global": "npm run build && npm install -g ."
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "azure-devops-node-api": "^14.1.0",
+    "commander": "^12.1.0",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
