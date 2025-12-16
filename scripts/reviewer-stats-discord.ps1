@@ -22,6 +22,10 @@
 .PARAMETER Repository
     Optional: Filter to a specific repository (requires Project)
 
+.PARAMETER AzureRunbookWebhook
+    Optional: Azure Runbook webhook URL to trigger a refresh. Can also be set via AZURE_RUNBOOK_WEBHOOK environment variable.
+    If provided, adds a refresh link to the Discord message.
+
 .EXAMPLE
     .\reviewer-stats-discord.ps1 -Organization "myorg" -Pat "xxxx" -DiscordWebhook "https://discord.com/api/webhooks/..."
 
@@ -46,7 +50,10 @@ param(
     [string]$Project,
 
     [Parameter(Mandatory = $false)]
-    [string]$Repository
+    [string]$Repository,
+
+    [Parameter(Mandatory = $false)]
+    [string]$AzureRunbookWebhook = $env:AZURE_RUNBOOK_WEBHOOK
 )
 
 # Validate required parameters
@@ -172,12 +179,14 @@ foreach ($pr in $activePRs) {
         $stat.Required++
 
         $vote = $reviewer.vote
-        if ($vote -ge 10) {
+        if ($vote -ge 5) {
+            # Approved (10) or Approved with Suggestions (5)
             $stat.Approved++
         } elseif ($vote -eq -5 -or $vote -le -10) {
             # Waiting for Author (-5) or Rejected (-10) = Blocked
             $stat.Blocked++
         } else {
+            # No response (0) or other
             $stat.Unreviewed++
         }
     }
@@ -266,8 +275,14 @@ if ($badgeLine) {
 }
 Write-Host ""
 
+# Build refresh link if Azure Runbook webhook is provided
+$refreshLink = ""
+if ($AzureRunbookWebhook) {
+    $refreshLink = "   [:arrows_counterclockwise:  Refresh]($AzureRunbookWebhook)"
+}
+
 # Post to Discord - table in code block, badge outside for emoji rendering
-$discordContent = "``````" + "`n" + $tableOutput + "`n" + "``````" + $badgeLine
+$discordContent = "``````" + "`n" + $tableOutput + "`n" + "``````" + $badgeLine + $refreshLink
 
 $discordBody = @{
     content = $discordContent

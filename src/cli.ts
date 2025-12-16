@@ -6,6 +6,7 @@
  */
 
 import * as dotenv from "dotenv";
+import * as fs from "fs";
 import { program } from "commander";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -63,13 +64,18 @@ addCommonOptions(
     .requiredOption("--target <branch>", "Target branch name")
     .requiredOption("--title <title>", "PR title")
     .option("--description <description>", "PR description (markdown)")
+    .option("--description-file <path>", "Read PR description from file")
     .option("--no-draft", "Create as active PR instead of draft")
 ).action(async (options) => {
+  let description = options.description;
+  if (options.descriptionFile) {
+    description = fs.readFileSync(options.descriptionFile, "utf-8");
+  }
   const result = await createPR({
     sourceBranch: options.source,
     targetBranch: options.target,
     title: options.title,
-    description: options.description,
+    description,
     isDraft: options.draft,
     organization: options.org,
     project: options.project,
@@ -285,11 +291,16 @@ addCommonOptions(
     .description("Update a PR's title and/or description")
     .option("--title <title>", "New title")
     .option("--description <description>", "New description")
+    .option("--description-file <path>", "Read new description from file")
 ).action(async (pr, options) => {
+  let description = options.description;
+  if (options.descriptionFile) {
+    description = fs.readFileSync(options.descriptionFile, "utf-8");
+  }
   const result = await updatePR({
     pr,
     title: options.title,
-    description: options.description,
+    description,
     organization: options.org,
     project: options.project,
     repository: options.repo,
