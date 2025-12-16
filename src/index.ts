@@ -17,6 +17,7 @@ import {
 dotenv.config();
 
 // Import tools
+import { createPR, CreatePRToolDefinition } from "./tools/CreatePRTool.js";
 import { getPR, GetPRToolDefinition } from "./tools/GetPRTool.js";
 import { listPRs, ListPRsToolDefinition } from "./tools/ListPRsTool.js";
 import { getThreads, GetThreadsToolDefinition } from "./tools/GetThreadsTool.js";
@@ -36,6 +37,7 @@ import { reviewerStats, ReviewerStatsToolDefinition } from "./tools/ReviewerStat
 
 // Tool definitions for MCP
 const toolDefinitions = [
+  CreatePRToolDefinition,
   GetPRToolDefinition,
   ListPRsToolDefinition,
   GetThreadsToolDefinition,
@@ -56,6 +58,7 @@ const toolDefinitions = [
 
 // Tool handlers mapping
 const toolHandlers: Record<string, (args: any) => Promise<any>> = {
+  create_pr: createPR,
   get_pr: getPR,
   list_prs: listPRs,
   get_threads: getThreads,

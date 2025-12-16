@@ -18,6 +18,7 @@ const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 // Import tools
+import { createPR } from "./tools/CreatePRTool.js";
 import { getPR } from "./tools/GetPRTool.js";
 import { listPRs } from "./tools/ListPRsTool.js";
 import { getThreads } from "./tools/GetThreadsTool.js";
@@ -52,6 +53,30 @@ program
   .name("azdo")
   .description("Azure DevOps CLI for PR management")
   .version("1.0.0");
+
+// create-pr
+addCommonOptions(
+  program
+    .command("create-pr")
+    .description("Create a new pull request (draft by default)")
+    .requiredOption("--source <branch>", "Source branch name")
+    .requiredOption("--target <branch>", "Target branch name")
+    .requiredOption("--title <title>", "PR title")
+    .option("--description <description>", "PR description (markdown)")
+    .option("--no-draft", "Create as active PR instead of draft")
+).action(async (options) => {
+  const result = await createPR({
+    sourceBranch: options.source,
+    targetBranch: options.target,
+    title: options.title,
+    description: options.description,
+    isDraft: options.draft,
+    organization: options.org,
+    project: options.project,
+    repository: options.repo,
+  });
+  output(result);
+});
 
 // get-pr
 addCommonOptions(
