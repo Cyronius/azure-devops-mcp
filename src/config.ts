@@ -1,6 +1,8 @@
 import * as dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
+import { execSync } from "child_process";
+import { parseAzureDevOpsRemoteUrl } from "./git-utils.js";
 
 // Get directory for relative imports in ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -17,6 +19,49 @@ export interface AzureDevOpsConfig {
 }
 
 let config: AzureDevOpsConfig | null = null;
+
+// Cache for git remote detection
+let gitRemoteDefaults: {
+  organization?: string;
+  project?: string;
+  repository?: string;
+} | null = null;
+let gitRemoteChecked = false;
+
+/**
+ * Detect Azure DevOps org/project/repo from current directory's git remote
+ */
+function detectFromGitRemote(): {
+  organization?: string;
+  project?: string;
+  repository?: string;
+} {
+  if (gitRemoteChecked) {
+    return gitRemoteDefaults || {};
+  }
+  gitRemoteChecked = true;
+
+  try {
+    // Check if we're in a git repo
+    execSync("git rev-parse --git-dir", { stdio: "pipe" });
+
+    // Get remote URL
+    const remoteUrl = execSync("git remote get-url origin", {
+      encoding: "utf-8",
+      stdio: ["pipe", "pipe", "pipe"],
+    }).trim();
+
+    const parsed = parseAzureDevOpsRemoteUrl(remoteUrl);
+    if (parsed) {
+      gitRemoteDefaults = parsed;
+      return parsed;
+    }
+  } catch {
+    // Not in a git repo or no origin remote - that's fine
+  }
+
+  return {};
+}
 
 export function getConfig(): AzureDevOpsConfig {
   if (config) return config;
@@ -40,15 +85,23 @@ export function getConfig(): AzureDevOpsConfig {
   return config;
 }
 
+/**
+ * Get defaults for org/project/repo.
+ * Priority: CLI flags > git remote > .env file
+ */
 export function getDefaults(): {
   organization?: string;
   project?: string;
   repository?: string;
 } {
   const cfg = getConfig();
+  const gitDefaults = detectFromGitRemote();
+
+  // Git remote takes priority over .env defaults
+  // (CLI flags handled separately in parsePRInput)
   return {
-    organization: cfg.defaultOrg,
-    project: cfg.defaultProject,
-    repository: cfg.defaultRepo,
+    organization: gitDefaults.organization || cfg.defaultOrg,
+    project: gitDefaults.project || cfg.defaultProject,
+    repository: gitDefaults.repository || cfg.defaultRepo,
   };
 }
